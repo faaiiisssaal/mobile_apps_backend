@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon ./src/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/hapi": "^21.3.3",
+    "async": "^3.2.5",
+    "dotenv": "^16.4.1",
+    "mssql": "^10.0.2",
+    "tedious": "^16.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.3"
+  }
+}
