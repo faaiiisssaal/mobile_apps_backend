@@ -1,5 +1,5 @@
 const Hapi = require("@hapi/hapi");
-const routes = require("./routes/routes");
+const routes = require("../routes/routes");
 const fs = require("node:fs");
 
 const init = async () => {

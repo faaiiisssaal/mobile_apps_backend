@@ -3,6 +3,8 @@ const { getMemberData }         = require("../model/member");
 const { getPolicyData }         = require("../model/policy");
 const { getListMemData }        = require("../model/list_member");
 const { getProviderArea }       = require("../model/area");
+const { getProviderLoc }        = require("../model/provider");
+const { getUserLogin }          = require("../user/user");
   
   const routes = [
     //BENEFIT
@@ -33,11 +35,25 @@ const { getProviderArea }       = require("../model/area");
       handler: getListMemData
     },
 
-    // LIST_MEMBER
+    // PROVIDER AREA
     {
       method: "GET",
       path: "/src/model/area",
       handler: getProviderArea
+    },
+
+    // LIST_USER
+    {
+      method: "GET",
+      path: "/src/user/user",
+      handler: getUserLogin
+    },
+
+    // PROVIDER LOC
+    {
+      method: "GET",
+      path: "/src/model/provider",
+      handler: getProviderLoc
     },
   ];
   
