@@ -1,0 +1,19 @@
+# Ignore compiled binaries
+*.class
+*.jar
+*.exe
+
+# Ignore Node.js modules
+node_modules/
+
+# Ignore editor-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore temporary files
+*.log
+*.swp
+
+# Ignore local configuration files
+.env
+db/db.js

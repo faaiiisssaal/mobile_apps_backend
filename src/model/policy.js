@@ -2,7 +2,7 @@ var Connection = require("tedious").Connection;
 var Request = require("tedious").Request;
 var async = require("async");
 
-const { config } = require("../db/connect");
+const { config } = require("../db/db");
 
 const getPolicyData = (request, h) => {
 
