@@ -1,12 +1,11 @@
 const Bcrypt = require('bcrypt');
 const Jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const users = {
-  john: {
-    username: 'john',
-    password: '$2b$10$sdv1w6wOelBlULkM2KpFGODxSsW/n5lQbMQ9H4fZDk7bXeFb0lEny',
-  },
-};
+  username: 'faisal',
+  password: '$2b$10$sdv1w6wOelBlULkM2KpFGODxSsW/n5lQbMQ9H4fZDk7bXeFb0lEny',
+}
 
 const apiKeys = {
   apiKey: process.env.API_KEY,
