@@ -18,7 +18,7 @@ const getProviderLoc = (request, h) => {
     // Read all rows from table
     var request = 
     new Request(
-      "SELECT P.ID, P.Name, P.Address_1, P.Address_2, A.Description FROM Profile P INNER JOIN Area A ON P.Area = A.Area ORDER BY Description ASC", 
+      "SELECT P.ID, A.Description, P.Name, P.Address_1, P.Address_2 FROM Profile P INNER JOIN Area A ON P.Area = A.Area WHERE Description NOT LIKE '' ORDER BY Description ASC", 
       function (err, rowCount, rows) {
         if (err) {
           closeConnection();
@@ -31,8 +31,9 @@ const getProviderLoc = (request, h) => {
     // Print the rows read
     request.on("row", function (columns) {
       const item = {
-        Area: columns[0].value,
-        Description: columns[1].value
+        area: columns[0].value,
+        description: columns[1].value,
+        name: columns[2].value
       };
     
       // Add a clone of the 'item' object to the 'result' array
@@ -42,8 +43,9 @@ const getProviderLoc = (request, h) => {
       console.log(item);
       
       // Reset the 'item' object properties for the next iteration
-      item.Area = "";
-      item.Description = "";
+      item.area = "";
+      item.description = "";
+      item.name = "";
     });
 
     // Event handler for the "requestCompleted" event
@@ -99,9 +101,11 @@ const getProviderLoc = (request, h) => {
 
   const handleSuccess = (resolvedValue) => {
     const response = h.response({
-      status: "success",
-      message: resolvedValue,
-      data: { result },
+      status  : "success",
+      message : resolvedValue,
+      data    : { 
+                  result
+                },
     });
     response.code(200);
     return response;

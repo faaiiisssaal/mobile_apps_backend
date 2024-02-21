@@ -4,7 +4,7 @@ const { getPolicyData }         = require("../model/policy");
 const { getListMemData }        = require("../model/list_member");
 const { getProviderArea }       = require("../model/area");
 const { getProviderLoc }        = require("../model/provider");
-const { getUserLogin }          = require("../user/user");
+const { getUserLogin }          = require("../model/user");
   
   const routes = [
     
@@ -46,7 +46,7 @@ const { getUserLogin }          = require("../user/user");
     // LIST_USER
     {
       method: "GET",
-      path: "/src/user/user",
+      path: "/src/model/user",
       handler: getUserLogin
     },
 
