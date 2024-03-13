@@ -1,10 +1,11 @@
 var Connection = require("tedious").Connection;
 var Request = require("tedious").Request;
 var async = require("async");
+const jwt = require('jsonwebtoken');
 
 const { config } = require("../db/db");
 
-const getProviderLoc = (request, h) => {
+const getUserLogin = (request, h) => {
 
   var connection = new Connection(config); // load data from another file
   connection.connect();  // Connecting to the Server
@@ -16,42 +17,34 @@ const getProviderLoc = (request, h) => {
   function responseVersion() {
 
     // Read all rows from table
-    var request = 
-    new Request(
-      "SELECT Ar.Description, P.ID, PF.ProductType, Pr.Name, Pr.Address_1 FROM Provider P "+
-      "INNER JOIN provider_facility PF ON P.Pno = PF.Pno "+
-      "INNER JOIN Profile Pr ON P.ID = Pr.ID "+
-      "INNER JOIN Area Ar ON Ar.Area = Pr.Area "+
-      "WHERE P.PStatus = 'R' AND P.ProviderF = 1 ORDER BY Ar.Description ASC", 
-      function (err, rowCount, rows) {
-        if (err) {
-          closeConnection();
-        } else {
-          console.log("Data has done executed");
+    var request =
+      new Request(
+        "....",
+        function (err, rowCount, rows) {
+          if (err) {
+            closeConnection();
+          } else {
+            console.log("Data has executed");
+          }
         }
-      }
-    ); 
+      );
 
     // Print the rows read
     request.on("row", function (columns) {
       const item = {
-        description: columns[0].value,
-        id: columns[1].value,
-        producttype: columns[2].value,
-        name: columns[3].value,
-        address: columns[4].value
+        Namee: columns[0].value,
+        Birth_Date: columns[1].value
       };
-    
+
       // Add a clone of the 'item' object to the 'result' array
       result.push({ ...item });
 
       // print the "item" data in terminal
       console.log(item);
-      
+
       // Reset the 'item' object properties for the next iteration
-      item.area = "";
-      item.description = "";
-      item.name = "";
+      item.Namee = "";
+      item.Birth_Date = "";
     });
 
     // Event handler for the "requestCompleted" event
@@ -91,6 +84,10 @@ const getProviderLoc = (request, h) => {
   // Timeout Connection
   setTimeout(closeConnection, 8000);
 
+  // Generate JWT token
+  function generateToken(username) {
+    return jwt.sign({ username }, 'your-secret-key', { expiresIn: '1h' });
+  }
 
   // Send JSON Response
   const checkResponse = async () => {
@@ -99,19 +96,19 @@ const getProviderLoc = (request, h) => {
         if (Object.keys(result).length === 0) {
           reject("Empty data");
         } else {
-          resolve("Available data");
+          const token = generateToken(username); // Assuming you have access to the username
+          resolve(token);
         }
       });
     });
   };
 
-  const handleSuccess = (resolvedValue) => {
+  const handleSuccess = (token) => {
     const response = h.response({
-      status  : "success",
-      message : resolvedValue,
-      data    : { 
-                  result
-                },
+      status: "success",
+      message: "Login successful",
+      token: token,
+      data: { result },
     });
     response.code(200);
     return response;
@@ -119,11 +116,11 @@ const getProviderLoc = (request, h) => {
 
   const handleFailure = (rejectionReason) => {
     const response = h.response({
-      status: "success-empty",
-      data: { result },
+      status: "failure",
+      message: "Login failed",
       rejectionReason,
     });
-    response.code(200);
+    response.code(401);
     return response;
   };
 
@@ -131,5 +128,5 @@ const getProviderLoc = (request, h) => {
 };
 
 module.exports = {
-    getProviderLoc,
+  getUserLogin,
 };
