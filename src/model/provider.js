@@ -18,14 +18,14 @@ const getProviderLoc = (request, h) => {
     // Read all rows from table
     var request = 
     new Request(
-      "SELECT Ar.Description, P.ID, PF.ProductType, Pr.Name, Pr.Address_1 FROM Provider P "+
-      "INNER JOIN provider_facility PF ON P.Pno = PF.Pno "+
-      "INNER JOIN Profile Pr ON P.ID = Pr.ID "+
-      "INNER JOIN Area Ar ON Ar.Area = Pr.Area "+
-      "WHERE P.PStatus = 'R' AND P.ProviderF = 1 ORDER BY Ar.Description ASC", 
+      
+      "SELECT DISTINCT P.ID, Ar.Description, Pr.Name, Pr.Address_1, Pr.Phone_1 FROM provider_facility PF INNER JOIN Provider P ON P.Pno = PF.PNO INNER JOIN Profile PR ON P.ID = PR.ID INNER JOIN Area AR ON AR.Area = PR.Area WHERE P.ProviderF = 1 ORDER BY Ar.Description ASC"
+      
+      , 
       function (err, rowCount, rows) {
         if (err) {
           closeConnection();
+          console.log("Why "+err);
         } else {
           console.log("Data has done executed");
         }
@@ -34,13 +34,14 @@ const getProviderLoc = (request, h) => {
 
     // Print the rows read
     request.on("row", function (columns) {
-      const item = {
-        description: columns[0].value,
-        id: columns[1].value,
-        producttype: columns[2].value,
-        name: columns[3].value,
-        address: columns[4].value
-      };
+         
+    const item = {
+        id: columns[0].value,
+        description: columns[1].value,
+        name: columns[2].value,
+        address: columns[3].value,
+        notelp: columns[4].value // Assign the object to producttype field
+    };
     
       // Add a clone of the 'item' object to the 'result' array
       result.push({ ...item });

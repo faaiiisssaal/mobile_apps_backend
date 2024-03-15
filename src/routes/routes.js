@@ -45,7 +45,7 @@ const { getUserLogin }          = require("../model/user");
 
     // LIST_USER
     {
-      method: "GET",
+      method: "POST",
       path: "/src/model/user",
       handler: getUserLogin
     },
