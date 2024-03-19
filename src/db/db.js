@@ -10,6 +10,7 @@ var config = {
     options: {
       encrypt: false,
       database: "SEA_MEDAPI",
+      collation: 'SQL_Latin1_General_CP1_CI_AS'
     },
   };
   

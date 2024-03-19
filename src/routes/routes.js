@@ -1,18 +1,18 @@
-const { getBenefitData }        = require("../model/benefit");
+const { postBenefitData }        = require("../model/benefit");
 const { getMemberData }         = require("../model/member");
 const { getPolicyData }         = require("../model/policy");
 const { getListMemData }        = require("../model/list_member");
 const { getProviderArea }       = require("../model/area");
 const { getProviderLoc }        = require("../model/provider");
-const { getUserLogin }          = require("../model/user");
+const { postUserLogin }          = require("../model/user");
   
   const routes = [
     
     //BENEFIT
     {
-      method: "GET",
+      method: "POST",
       path: "/src/model/benefit",
-      handler: getBenefitData,
+      handler: postBenefitData,
     },
 
     //MEMBER
@@ -47,7 +47,9 @@ const { getUserLogin }          = require("../model/user");
     {
       method: "POST",
       path: "/src/model/user",
-      handler: getUserLogin
+      handler: (request, h) => {
+        return postUserLogin(request, h);
+      }
     },
 
     // PROVIDER LOC

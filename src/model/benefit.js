@@ -4,7 +4,7 @@ var async = require("async");
 
 const { config } = require("../db/db");
 
-const getBenefitData = (request, h) => {
+const postBenefitData = (request, h) => {
 
   var connection = new Connection(config); // load data from another file
   connection.connect();  // Connecting to the Server
@@ -125,5 +125,5 @@ const getBenefitData = (request, h) => {
 };
 
 module.exports = {
-  getBenefitData,
+  postBenefitData,
 };

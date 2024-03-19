@@ -18,7 +18,7 @@ const getProviderArea = (request, h) => {
     // Read all rows from table
     var request = 
     new Request(
-      "SELECT * FROM dbo.Area WHERE Description COLLATE Latin1_General_CS_AS NOT LIKE '%Bumi Serpong Damai%' AND Area LIKE '_____' AND Description NOT LIKE '%-%'ORDER BY Description ASC", 
+      "SELECT DISTINCT PR.Area, AR.Description FROM provider_facility PF INNER JOIN Provider P ON P.Pno = PF.PNO INNER JOIN Profile PR ON P.ID = PR.ID INNER JOIN Area AR ON AR.Area = PR.Area WHERE P.ProviderF = 1 AND AR.Description IS NOT NULL AND Pr.Area LIKE '%%' AND Pr.Area NOT IN ('11', 'N/A') ORDER BY PR.Area ASC", 
       function (err, rowCount, rows) {
         if (err) {
           closeConnection();

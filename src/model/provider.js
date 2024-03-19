@@ -6,21 +6,14 @@ const { config } = require("../db/db");
 
 const getProviderLoc = (request, h) => {
 
-  var connection = new Connection(config); // load data from another file
-  connection.connect();  // Connecting to the Server
-
-  // Initialize for data Query
-  var result = [
-  ]
-
+  var connection = new Connection(config); 
+  connection.connect();  
+  var result = []
   function responseVersion() {
 
-    // Read all rows from table
     var request = 
     new Request(
-      
       "SELECT DISTINCT P.ID, Ar.Description, Pr.Name, Pr.Address_1, Pr.Phone_1 FROM provider_facility PF INNER JOIN Provider P ON P.Pno = PF.PNO INNER JOIN Profile PR ON P.ID = PR.ID INNER JOIN Area AR ON AR.Area = PR.Area WHERE P.ProviderF = 1 ORDER BY Ar.Description ASC"
-      
       , 
       function (err, rowCount, rows) {
         if (err) {
@@ -32,7 +25,6 @@ const getProviderLoc = (request, h) => {
       }
     ); 
 
-    // Print the rows read
     request.on("row", function (columns) {
          
     const item = {
@@ -40,30 +32,20 @@ const getProviderLoc = (request, h) => {
         description: columns[1].value,
         name: columns[2].value,
         address: columns[3].value,
-        notelp: columns[4].value // Assign the object to producttype field
+        notelp: columns[4].value,
     };
-    
-      // Add a clone of the 'item' object to the 'result' array
-      result.push({ ...item });
 
-      // print the "item" data in terminal
+      result.push({ ...item });
       console.log(item);
-      
-      // Reset the 'item' object properties for the next iteration
+
       item.area = "";
       item.description = "";
       item.name = "";
     });
 
-    // Event handler for the "requestCompleted" event
-    // This event is triggered when the SQL request has been successfully completed
-
     request.on("requestCompleted", function (rowCount, more) {
-      // Close the database connection
       connection.close();
     });
-
-    // Execute SQL statement
     connection.execSql(request);
   }
 
@@ -74,12 +56,10 @@ const getProviderLoc = (request, h) => {
     }
   }
 
-  // Attempt to connect and execute queries if connection goes through
   connection.on("connect", function (err) {
     if (err) {
       closeConnection();
     } else {
-      // Execute all functions in the array serially
       async.waterfall([responseVersion], Complete());
     }
   });
@@ -88,12 +68,8 @@ const getProviderLoc = (request, h) => {
     message = "Connection Timeout";
     connection.close();
   }
-
-  // Timeout Connection
   setTimeout(closeConnection, 8000);
 
-
-  // Send JSON Response
   const checkResponse = async () => {
     return new Promise((resolve, reject) => {
       connection.on("end", function () {
