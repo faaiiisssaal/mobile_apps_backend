@@ -1,20 +1,14 @@
-const { postBenefitData }        = require("../model/benefit");
-const { getMemberData }         = require("../model/member");
-const { getPolicyData }         = require("../model/policy");
-const { getListMemData }        = require("../model/list_member");
-const { getProviderArea }       = require("../model/area");
-const { getProviderLoc }        = require("../model/provider");
-const { postUserLogin }          = require("../model/user");
+const { getMemberData }             = require("../model/member");
+const { getPolicyData }             = require("../model/policy");
+const { getListMemData }            = require("../model/list_member");
+const { getProviderArea }           = require("../model/area");
+const { getProviderLoc }            = require("../model/provider");
+const { postUserLogin }             = require("../model/user");
+const { postFamilyUser }            = require("../model/family");
+const { postBenefitUser }           = require("../model/benefit");
   
   const routes = [
-    
-    //BENEFIT
-    {
-      method: "POST",
-      path: "/src/model/benefit",
-      handler: postBenefitData,
-    },
-
+  
     //MEMBER
     {
       method: "GET",
@@ -43,6 +37,9 @@ const { postUserLogin }          = require("../model/user");
       handler: getProviderArea
     },
 
+
+    // Success Deploy API to Mobile Apps
+
     // LIST_USER
     {
       method: "POST",
@@ -51,6 +48,25 @@ const { postUserLogin }          = require("../model/user");
         return postUserLogin(request, h);
       }
     },
+
+    // LIST_FAMILY_USER
+    {
+      method: "POST",
+      path: "/src/model/familyuser",
+      handler: (request, h) => {
+        return postFamilyUser(request, h);
+      }
+    },
+
+    // LIST_BENEFIT_USER
+    {
+      method: "POST",
+      path: "/src/model/benefituser",
+      handler: (request, h) => {
+        return postBenefitUser(request, h);
+      }
+    },
+
 
     // PROVIDER LOC
     {

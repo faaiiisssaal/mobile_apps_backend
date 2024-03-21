@@ -1,129 +1,96 @@
-var Connection = require("tedious").Connection;
-var Request = require("tedious").Request;
-var async = require("async");
+const { Connection, Request, TYPES } = require("tedious");
+require('dotenv').config(); // Load environment variables
 
 const { config } = require("../db/db");
 
-const postBenefitData = (request, h) => {
+const postBenefitUser = async (request, h) => {
+  const { memberno, plan} = request.payload;
 
-  var connection = new Connection(config); // load data from another file
-  connection.connect();  // Connecting to the Server
+  // Validate empid
+  if (!memberno || !plan) {
+    if (!memberno) {
+        return handleFailure("Member ID is required", h);
+    } else {
+        return handleFailure("Plan is required", h);
+    }
+}
 
-  // Initialize for data Query
-  var result = [
-  ]
+  const connection = new Connection(config);
+  let result = [];
 
-  function responseVersion() {
-
-    // Read all rows from table
-    var request = 
-    new Request(
-      "SELECT Name, Description, ProductType, Unit FROM dbo.Benefit WHERE ProductType LIKE '%DT%' ORDER BY Unit DESC, Name_1 ASC;", 
-      function (err, rowCount, rows) {
+  try {
+    await new Promise((resolve, reject) => {
+      connection.on('connect', (err) => {
         if (err) {
-          closeConnection();
+          reject(err);
         } else {
-          console.log("Data has executed");
-        }
-      }
-    ); 
+          const request = new Request("dbo.Benefit_Query", (err, rowCount) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
 
-    // Print the rows read
-    request.on("row", function (columns) {
-      const item = {
-        namee: columns[0].value,
-        description: columns[1].value,
-        product_type: columns[2].value,
-        unit: columns[3].value
-      };
-    
-      // Add a clone of the 'item' object to the 'result' array
-      result.push({ ...item });
+          request.addParameter('memberno', TYPES.VarChar, memberno);
+          request.addParameter('plan', TYPES.VarChar, plan);
 
-      // print the "item" data in terminal
-      console.log(item);
-      
-      // Reset the 'item' object properties for the next iteration
-      item.namee = "";
-      item.description = "";
-      item.product_type = "";
-      item.unit = "";
-    });
+          request.on("row", (columns) => {
+            const item = {
+              no: columns[0].value,
+              benefitName: columns[1].value,
+              maxAmount: columns[2].value,
+              pplan: columns[3].value,
+              planName: columns[4].value,
+              benefitID : columns[5].value,
+              benefitNo: columns[6].value,
+              annualLimit: columns[7].value,
+              overalllimitamount : columns[8].value,
+            }; 
+            result.push(item);
+            console.log(item);
+          });
 
-    // Event handler for the "requestCompleted" event
-    // This event is triggered when the SQL request has been successfully completed
+          request.on("requestCompleted", () => {
+            resolve();
+          });
 
-    request.on("requestCompleted", function (rowCount, more) {
-      // Close the database connection
-      connection.close();
-    });
-
-    // Execute SQL statement
-    connection.execSql(request);
-  }
-
-  function Complete(err, result) {
-    if (err) {
-      closeConnection();
-    } else {
-    }
-  }
-
-  // Attempt to connect and execute queries if connection goes through
-  connection.on("connect", function (err) {
-    if (err) {
-      closeConnection();
-    } else {
-      // Execute all functions in the array serially
-      async.waterfall([responseVersion], Complete());
-    }
-  });
-
-  function closeConnection() {
-    message = "Connection Timeout";
-    connection.close();
-  }
-
-  // Timeout Connection
-  setTimeout(closeConnection, 8000);
-
-
-  // Send JSON Response
-  const checkResponse = async () => {
-    return new Promise((resolve, reject) => {
-      connection.on("end", function () {
-        if (Object.keys(result).length === 0) {
-          reject("Empty data");
-        } else {
-          resolve("Available data");
+          connection.callProcedure(request);
         }
       });
+      connection.connect();
     });
-  };
 
-  const handleSuccess = (resolvedValue) => {
-    const response = h.response({
-      status: "success",
-      message: resolvedValue,
-      data: { result },
-    });
-    response.code(200);
-    return response;
-  };
+    if (result.length === 0) {
+      throw new Error("No data found");
+    }
 
-  const handleFailure = (rejectionReason) => {
-    const response = h.response({
-      status: "success-empty",
-      data: { result },
-      rejectionReason,
-    });
-    response.code(200);
-    return response;
-  };
+    return handleSuccess(result, h);
+  } catch (error) {
+    return handleFailure(error.message, h);
+  } finally {
+    connection.close();
+  }
+};
 
-  return checkResponse().then(handleSuccess, handleFailure);
+const handleSuccess = (result, h) => {
+  return h.response({
+    status: "success",
+    message: "Data has been retrieved successfully",
+    data: {
+      result
+    },
+  }).code(200);
+};
+
+const handleFailure = (rejectionReason, h) => {
+  return h.response({
+    status: "failure",
+    message: "Failed to retrieve data",
+    rejectionReason
+  }).code(401);
 };
 
 module.exports = {
-  postBenefitData,
+    postBenefitUser,
 };

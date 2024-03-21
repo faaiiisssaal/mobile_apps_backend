@@ -31,8 +31,8 @@ const getProviderArea = (request, h) => {
     // Print the rows read
     request.on("row", function (columns) {
       const item = {
-        Area: columns[0].value,
-        Description: columns[1].value
+        area: columns[0].value,
+        description: columns[1].value
       };
     
       // Add a clone of the 'item' object to the 'result' array

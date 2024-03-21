@@ -8,9 +8,17 @@ const { config } = require("../db/db");
 
 const postUserLogin = async (request, h) => {
   const { memberno, bdate } = request.payload;
+
+  // Validate memberno and bdate
+  if (!memberno || !bdate) {
+    return handleFailure("Member number and birthdate are required", h);
+  }
+
   const connection = new Connection(config);
+  let result = [];
+
   try {
-    const result = await new Promise((resolve, reject) => {
+    await new Promise((resolve, reject) => {
       connection.on('connect', (err) => {
         if (err) {
           reject(err);
@@ -18,34 +26,35 @@ const postUserLogin = async (request, h) => {
           const request = new Request("dbo.Login_User_Query", (err, rowCount, rows) => {
             if (err) {
               reject(err);
+            } else {
+              resolve();
             }
           });
           request.addParameter('memberno', TYPES.VarChar, memberno);
           request.addParameter('bdate', TYPES.SmallDateTime, bdate);
 
-          const result = [];
           request.on("row", (columns) => {
             const item = {
-              company_name: columns[0].value,
-              policy_no: columns[1].value,
-              card_no: columns[2].value,
-              emp_id: columns[3].value,
-              member_id: columns[4].value,
-              member_name: columns[5].value,
-              class_no: columns[6].value,
-              member_sex: columns[7].value,
-              member_plan: columns[8].value,
-              member_birth_date: columns[9].value,
-              effective_date: columns[10].value,
-              ip_detail: columns[11].value,
-              op_detail: columns[12].value,
-            };
+              companyName: columns[0].value,
+              policyNo: columns[1].value,
+              cardNo: columns[2].value,
+              empID: columns[3].value,
+              memberID: columns[4].value,
+              memberName: columns[5].value,
+              classNo: columns[6].value,
+              memberSex: columns[7].value,
+              memberPlan: columns[8].value,
+              memberBirthDate: columns[9].value,
+              effectiveDate: columns[10].value,
+              ipDetail: columns[11].value,
+              opDetail: columns[12].value,
+            }; 
             result.push(item);
             console.log(item);
           });
 
           request.on("requestCompleted", (rowCount, more) => {
-            resolve(result);
+            resolve();
           });
 
           connection.callProcedure(request);
@@ -53,7 +62,12 @@ const postUserLogin = async (request, h) => {
       });
       connection.connect();
     });
-    const token = generateToken(memberno);
+
+    if (result.length === 0) {
+      throw new Error("No data found for the provided credentials");
+    }
+
+    const token = generateToken(memberno, bdate);
     return handleSuccess(token, result, h);
   } catch (error) {
     return handleFailure(error.message, h);
@@ -62,17 +76,19 @@ const postUserLogin = async (request, h) => {
   }
 };
 
-const generateToken = (memberno) => {
+const generateToken = (memberno, bdate) => {
   const secretKey = process.env.JWT_SECRET;
-  return jwt.sign({ memberno }, secretKey, { expiresIn: '1h' });
+  return jwt.sign({ memberno, bdate }, secretKey, { expiresIn: '1h' });
 };
 
 const handleSuccess = (token, result, h) => {
   return h.response({
     status: "success",
     message: "Login successful",
-    token: token,
-    result: result
+    data: {
+      token: token,
+      result
+    },
   }).code(200);
 };
 
