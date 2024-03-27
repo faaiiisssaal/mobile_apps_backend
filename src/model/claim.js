@@ -3,8 +3,8 @@ require('dotenv').config(); // Load environment variables
 
 const { config } = require("../db/db");
 
-const postPolicyData = async (request, h) => {
-  const { clientID } = request.payload;
+const postClaimMember = async (request, h) => {
+  const { cno, type } = request.payload;
 
   const connection = new Connection(config);
   let result = [];
@@ -15,7 +15,7 @@ const postPolicyData = async (request, h) => {
         if (err) {
           reject(err);
         } else {
-          const request = new Request("dbo.Policy_Check", (err, rowCount) => {
+          const request = new Request("dbo.Provider_Location", (err, rowCount) => {
             if (err) {
               reject(err);
             } else {
@@ -23,14 +23,20 @@ const postPolicyData = async (request, h) => {
             }
           });
 
-          request.addParameter('clientID', TYPES.VarChar, clientID);
+          request.addParameter('cno', TYPES.VarChar, cno);
+          request.addParameter('type', TYPES.VarChar, type);
 
           request.on("row", (columns) => {
             const item = {
-              effectiveDate: columns[0].value,
-              renewalDate: columns[1].value,
-              policyID: columns[2].value,
-              clientID: columns[3].value,
+              id: columns[2].value,
+              description: columns[1].value,
+              name: columns[5].value,
+              address: columns[3].value,
+              notelp: columns[4].value,
+              ip: columns[6].value,
+              op: columns[7].value,
+              dt: columns[8].value,
+              ma: columns[9].value,
             }; 
             result.push(item);
             console.log(item);
@@ -77,5 +83,5 @@ const handleFailure = (rejectionReason, h) => {
 };
 
 module.exports = {
-  postPolicyData,
+  postClaimMember,
 };

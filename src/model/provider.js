@@ -1,112 +1,87 @@
-var Connection = require("tedious").Connection;
-var Request = require("tedious").Request;
-var async = require("async");
+const { Connection, Request, TYPES } = require("tedious");
+require('dotenv').config(); // Load environment variables
 
 const { config } = require("../db/db");
 
-const getProviderLoc = (request, h) => {
+const postProviderLoc = async (request, h) => {
+  const { name, description } = request.payload;
 
-  var connection = new Connection(config); 
-  connection.connect();  
-  var result = []
-  function responseVersion() {
+  const connection = new Connection(config);
+  let result = [];
 
-    var request = 
-    new Request(
-      "SELECT DISTINCT P.ID, Ar.Description, Pr.Name, Pr.Address_1, Pr.Phone_1 FROM provider_facility PF INNER JOIN Provider P ON P.Pno = PF.PNO INNER JOIN Profile PR ON P.ID = PR.ID INNER JOIN Area AR ON AR.Area = PR.Area WHERE P.ProviderF = 1 ORDER BY Ar.Description ASC"
-      , 
-      function (err, rowCount, rows) {
+  try {
+    await new Promise((resolve, reject) => {
+      connection.on('connect', (err) => {
         if (err) {
-          closeConnection();
-          console.log("Why "+err);
+          reject(err);
         } else {
-          console.log("Data has done executed");
-        }
-      }
-    ); 
+          const request = new Request("dbo.Provider_Location", (err, rowCount) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          });
 
-    request.on("row", function (columns) {
-         
-    const item = {
-        id: columns[0].value,
-        description: columns[1].value,
-        name: columns[2].value,
-        address: columns[3].value,
-        notelp: columns[4].value,
-    };
+          request.addParameter('name', TYPES.VarChar, name);
+          request.addParameter('description', TYPES.VarChar, description);
 
-      result.push({ ...item });
-      console.log(item);
+          request.on("row", (columns) => {
+            const item = {
+              id: columns[2].value,
+              description: columns[1].value,
+              name: columns[5].value,
+              address: columns[3].value,
+              notelp: columns[4].value,
+              ip: columns[6].value,
+              op: columns[7].value,
+              dt: columns[8].value,
+              ma: columns[9].value,
+            }; 
+            result.push(item);
+            console.log(item);
+          });
 
-      item.area = "";
-      item.description = "";
-      item.name = "";
-    });
+          request.on("requestCompleted", () => {
+            resolve();
+          });
 
-    request.on("requestCompleted", function (rowCount, more) {
-      connection.close();
-    });
-    connection.execSql(request);
-  }
-
-  function Complete(err, result) {
-    if (err) {
-      closeConnection();
-    } else {
-    }
-  }
-
-  connection.on("connect", function (err) {
-    if (err) {
-      closeConnection();
-    } else {
-      async.waterfall([responseVersion], Complete());
-    }
-  });
-
-  function closeConnection() {
-    message = "Connection Timeout";
-    connection.close();
-  }
-  setTimeout(closeConnection, 8000);
-
-  const checkResponse = async () => {
-    return new Promise((resolve, reject) => {
-      connection.on("end", function () {
-        if (Object.keys(result).length === 0) {
-          reject("Empty data");
-        } else {
-          resolve("Available data");
+          connection.callProcedure(request);
         }
       });
+      connection.connect();
     });
-  };
 
-  const handleSuccess = (resolvedValue) => {
-    const response = h.response({
-      status  : "success",
-      message : resolvedValue,
-      data    : { 
-                  result
-                },
-    });
-    response.code(200);
-    return response;
-  };
+    if (result.length === 0) {
+      throw new Error("No data found");
+    }
 
-  const handleFailure = (rejectionReason) => {
-    const response = h.response({
-      status: "success-empty",
-      data: { result },
-      rejectionReason,
-    });
-    response.code(200);
-    return response;
-  };
+    return handleSuccess(result, h);
+  } catch (error) {
+    return handleFailure(error.message, h);
+  } finally {
+    connection.close();
+  }
+};
 
-  return checkResponse().then(handleSuccess, handleFailure);
+const handleSuccess = (result, h) => {
+  return h.response({
+    status: "success",
+    message: "Data has been retrieved successfully",
+    data: {
+      result
+    },
+  }).code(200);
+};
+
+const handleFailure = (rejectionReason, h) => {
+  return h.response({
+    status: "failure",
+    message: "Failed to retrieve data",
+    rejectionReason
+  }).code(401);
 };
 
 module.exports = {
-    getProviderLoc,
+  postProviderLoc,
 };

@@ -1,8 +1,8 @@
 const { getMemberData }             = require("../model/member");
-const { getPolicyData }             = require("../model/policy");
 const { getListMemData }            = require("../model/list_member");
+const { postPolicyData }            = require("../model/policy");
 const { getProviderArea }           = require("../model/area");
-const { getProviderLoc }            = require("../model/provider");
+const { postProviderLoc }           = require("../model/provider");
 const { postUserLogin }             = require("../model/user");
 const { postFamilyUser }            = require("../model/family");
 const { postBenefitUser }           = require("../model/benefit");
@@ -16,12 +16,7 @@ const { postBenefitUser }           = require("../model/benefit");
       handler: getMemberData,
     },
 
-    //POLICY
-    {
-      method: "GET",
-      path: "/src/model/policy",
-      handler: getPolicyData,
-    },
+    
 
     // LIST_MEMBER
     {
@@ -39,6 +34,24 @@ const { postBenefitUser }           = require("../model/benefit");
 
 
     // Success Deploy API to Mobile Apps
+
+    //POLICY
+    {
+      method: "POST",
+      path: "/src/model/policysort",
+      handler: (request, h) => {
+        return postPolicyData(request, h);
+      }
+    },
+
+    //LIST_CLAIM_USER
+    {
+      method: "POST",
+      path: "/src/model/listclaim",
+      handler: (request, h) => {
+        return postPolicyData(request, h);
+      }
+    },
 
     // LIST_USER
     {
@@ -67,12 +80,13 @@ const { postBenefitUser }           = require("../model/benefit");
       }
     },
 
-
     // PROVIDER LOC
     {
-      method: "GET",
+      method: "POST",
       path: "/src/model/provider",
-      handler: getProviderLoc
+      handler: (request, h) => {
+        return postProviderLoc(request, h);
+      }
     },
   ];
   

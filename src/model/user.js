@@ -36,18 +36,19 @@ const postUserLogin = async (request, h) => {
           request.on("row", (columns) => {
             const item = {
               companyName: columns[0].value,
-              policyNo: columns[1].value,
-              cardNo: columns[2].value,
-              empID: columns[3].value,
-              memberID: columns[4].value,
-              memberName: columns[5].value,
-              classNo: columns[6].value,
-              memberSex: columns[7].value,
-              memberPlan: columns[8].value,
-              memberBirthDate: columns[9].value,
-              effectiveDate: columns[10].value,
-              ipDetail: columns[11].value,
-              opDetail: columns[12].value,
+              clientID: columns[1].value,
+              policyNo: columns[2].value,
+              cardNo: columns[3].value,
+              empID: columns[4].value,
+              memberID: columns[5].value,
+              memberName: columns[6].value,
+              classNo: columns[7].value,
+              memberSex: columns[8].value,
+              memberPlan: columns[9].value,
+              memberBirthDate: columns[10].value,
+              effectiveDate: columns[11].value,
+              ipDetail: columns[12].value,
+              opDetail: columns[13].value,
             }; 
             result.push(item);
             console.log(item);
