@@ -1,5 +1,6 @@
 const { getMemberData }             = require("../model/member");
 const { getListMemData }            = require("../model/list_member");
+const { postClaimMember }            = require("../model/claim");
 const { postPolicyData }            = require("../model/policy");
 const { getProviderArea }           = require("../model/area");
 const { postProviderLoc }           = require("../model/provider");
@@ -49,7 +50,7 @@ const { postBenefitUser }           = require("../model/benefit");
       method: "POST",
       path: "/src/model/listclaim",
       handler: (request, h) => {
-        return postPolicyData(request, h);
+        return postClaimMember(request, h);
       }
     },
 

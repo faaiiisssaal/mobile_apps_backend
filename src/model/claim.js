@@ -4,7 +4,7 @@ require('dotenv').config(); // Load environment variables
 const { config } = require("../db/db");
 
 const postClaimMember = async (request, h) => {
-  const { cno, type } = request.payload;
+  const { memberno, policyid } = request.payload;
 
   const connection = new Connection(config);
   let result = [];
@@ -15,7 +15,7 @@ const postClaimMember = async (request, h) => {
         if (err) {
           reject(err);
         } else {
-          const request = new Request("dbo.Provider_Location", (err, rowCount) => {
+          const request = new Request("dbo.List_Claim_User", (err, rowCount) => {
             if (err) {
               reject(err);
             } else {
@@ -23,20 +23,18 @@ const postClaimMember = async (request, h) => {
             }
           });
 
-          request.addParameter('cno', TYPES.VarChar, cno);
-          request.addParameter('type', TYPES.VarChar, type);
+          request.addParameter('memberno', TYPES.VarChar, memberno);
+          request.addParameter('policyid', TYPES.VarChar, policyid);
 
           request.on("row", (columns) => {
             const item = {
-              id: columns[2].value,
-              description: columns[1].value,
-              name: columns[5].value,
-              address: columns[3].value,
-              notelp: columns[4].value,
-              ip: columns[6].value,
-              op: columns[7].value,
-              dt: columns[8].value,
-              ma: columns[9].value,
+              cno: columns[8].value,
+              refNo: columns[20].value,
+              productType: columns[18].value,
+              provider: columns[14].value,
+              start: columns[16].value,
+              finish: columns[17].value,
+              doctor: columns[21].value,
             }; 
             result.push(item);
             console.log(item);
